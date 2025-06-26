@@ -1,0 +1,22 @@
+<guardrails>
+    <input>
+        <check name="no_pii"/>
+        <check name="no_profanity"/>
+        <check name="no_prompt_injection"/>
+        <check name="no_toxicity"/>
+        <!-- Advanced: Custom regex for invoice numbers, emails, etc. -->
+        <!-- <check name="regex" pattern="^[a-zA-Z0-9, ]+$" description="Only alphanumeric, comma, and space allowed."/> -->
+        <!-- Advanced: Multilingual support (ensure checks support multiple languages) -->
+    </input>
+    <output>
+        <check name="no_pii"/>
+        <check name="no_profanity"/>
+        <check name="no_prompt_injection"/>
+        <check name="no_hate_speech"/>
+        <check name="no_toxicity"/>
+        <!-- Advanced: PII redaction instead of just blocking -->
+        <!-- <check name="redact_pii"/> -->
+        <!-- Advanced: Hallucination check (if supported) -->
+        <!-- <check name="no_hallucination"/> -->
+    </output>
+</guardrails> 
