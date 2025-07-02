@@ -7,7 +7,7 @@ from src.agents.graph import app as invoice_agent_app
 from src.schemas.api import ChatRequest, ChatResponse
 from src.memory.short_term import get_history_for_session, save_history_for_session
 from src.memory.long_term import save_conversation_record, fetch_conversation_records
-from src.utils.guardrails import validate_input, validate_output, get_guardrails_errors, redact_pii, check_po_number_format, check_invoice_number_format
+from src.utils.guardrails import validate_input, validate_output, get_guardrails_errors, redact_pii, check_po_number_format, check_po_number_format
 
 app = FastAPI(
     title="Invoice Agent API",
@@ -56,7 +56,7 @@ async def chat(request: ChatRequest):
             raise HTTPException(status_code=400, detail={"error": "PO number format invalid. Must be 10 digits.", "po_number": po})
     
     # Retrieve conversation history from Redis
-    history = get_history_for_session(session_id)
+    history = await get_history_for_session(session_id)
     
     # Prepare the input for the LangGraph agent
     agent_input = {
