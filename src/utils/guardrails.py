@@ -7,7 +7,7 @@ guard = Guard.from_rail(str(CONFIG_PATH))
 
 def validate_input(user_input: str) -> bool:
     """Validate user input using guardrails config. Returns True if valid, False otherwise."""
-    result = guard.validate(user_input, section="input")
+    result = guard.parse(user_input, section="input")
     return result.valid  # type: ignore[attr-defined]
 
 def validate_output(llm_output: str) -> bool:
@@ -26,7 +26,7 @@ def redact_pii(text: str) -> str:
         return result.redacted_output  # type: ignore[attr-defined]
     return text
 
-def check_invoice_number_format(invoice_number: str) -> bool:
-    """Custom regex: Invoice number must be 10 digits."""
+def check_po_number_format(po_number: str) -> bool:
+    """Custom regex: PO number must be 10 digits."""
     import re
-    return bool(re.fullmatch(r"\d{10}", invoice_number)) 
+    return bool(re.fullmatch(r"\d{10}", po_number)) 

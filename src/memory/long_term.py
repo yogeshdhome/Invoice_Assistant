@@ -1,8 +1,9 @@
 import asyncio
 from typing import Optional, List, Dict
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy import Column, Integer, String, Text, DateTime, func
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy import Column, Integer, String, Text, DateTime, func, select
 from src.core.config import settings
 
 Base = declarative_base()
@@ -19,7 +20,7 @@ class ConversationRecord(Base):
 # Build the SAP HANA Cloud DB connection string
 DB_URL = f"postgresql+asyncpg://{settings.hana_db_user}:{settings.hana_db_password}@{settings.hana_db_address}:{settings.hana_db_port}/{settings.hana_db_database}"
 engine = create_async_engine(DB_URL, echo=False, future=True)
-AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+AsyncSessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession)
 
 async def init_db():
     """Create tables if they do not exist."""
@@ -46,10 +47,10 @@ async def save_conversation_record(
 async def fetch_conversation_records(session_id: Optional[str] = None) -> List[Dict]:
     """Fetch conversation records by session_id (or all if None)."""
     async with AsyncSessionLocal() as session:
-        query = session.query(ConversationRecord)
+        stmt = select(ConversationRecord)
         if session_id:
-            query = query.filter(ConversationRecord.session_id == session_id)
-        result = await session.execute(query)
+            stmt = stmt.where(ConversationRecord.session_id == session_id)
+        result = await session.execute(stmt)
         records = result.scalars().all()
         return [
             {
@@ -58,7 +59,7 @@ async def fetch_conversation_records(session_id: Optional[str] = None) -> List[D
                 "user_query": r.user_query,
                 "agent_response": r.agent_response,
                 "final_status": r.final_status,
-                "created_at": r.created_at.isoformat() if r.created_at else None
+                "created_at": r.created_at.isoformat() if r.created_at is not None else None
             }
             for r in records
         ]
